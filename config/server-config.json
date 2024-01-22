@@ -1,0 +1,14 @@
+{
+    "url"               : "127.0.0.1",
+    "server_port"       : 8008,
+    "node_port"         : 8009,
+    "blender_path"      : "D:\\Program Files\\Blender Foundation\\Blender 4.0\\blender.exe",
+    "project_folder"    : ".\\projects\\",
+    "working_folder"    : ".\\working\\",
+    "render_folder"     : ".\\render\\",
+    "logs_folder"       : ".\\logs\\",
+    "render_engines"    : ["CYCLES", "BLENDER_EEVEE"],
+    "file_format"       : ["TGA", "RAWTGA", "JPEG", "IRIS", "IRIZ", "AVIRAW", "AVIJPEG", "PNG", "BMP" ],
+    "extra_formats"     : ["HDR", "TIFF", "OPEN_EXR", "OPEN_EXR_MULTILAYER", "MPEG", "CINEON", "DPX", "DDS", "JP2", "WEBP"],
+    "cycles_devices"    : ["CPU", "CUDA", "OPTIX", "HIP", "ONEAPI", "METAL"]
+}

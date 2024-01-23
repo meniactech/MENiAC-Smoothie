@@ -1,6 +1,6 @@
 /* ------------------------------------------------
 
-    Smoothie::Node - version 0.1.0
+    Smoothie::Node - version 0.1.3
 
     Use this node to all render machines.
     Server will send Blender files and render
@@ -61,7 +61,7 @@ function init( cfg ) {
     app.use( express.static( path.join( __dirname, "html" ) ) );
 
     app.get('/', (req, res) => {
-        res.sendFile( path.join( __dirname, '/html/smoothie-node.html' ) );
+        res.sendFile( path.join( __dirname, '/html/node.html' ) );
     })
 
     app.get('/api/ping', (req, res) => {

@@ -1,6 +1,6 @@
 /* ------------------------------------------------
 
-  Smoothie::Server - version 0.1.0
+  Smoothie::Server - version 0.1.3
 
   Use this server to send Blender files and render
   instructions to nodes.
@@ -32,7 +32,7 @@ let _local_data = {};
 let _nodes = [];
 let _files_in_project_folder = [];
 
-// Possible Node States:
+// Possible Node States: (needs to be located somewhere else)
 const STATUS = {
   UNDEFINED: -1,
   UNKNOWN: 0,
@@ -42,11 +42,9 @@ const STATUS = {
   ERROR: 99
 }
 
-
-
-// ******************************* //
-// *** Read server config file *** //
-// ******************************* //
+// ------------------------------- //
+//     Read server config file     //
+// ------------------------------- //
 fs.readFile("./config/server-config.json", "utf8", (error, data) => {
   if (error) {
     console.log(error);
@@ -64,7 +62,7 @@ function init( cfg ) {
   app.use( express.static( path.join( __dirname, "html" ) ) );
 
   app.get('/', (req, res) => {
-    res.sendFile( path.join( __dirname, '/html/smoothie-server.html' ) );
+    res.sendFile( path.join( __dirname, '/html/server.html' ) );
   })
 
   app.get('/api/project-files', (req, res) => {

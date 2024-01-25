@@ -1,5 +1,12 @@
 // Desc: Smoothie Server related Functionality
 
+// Are we ready to render?
+let _ready_to_render = false;
+
+// store project settings
+let project_settings = {};
+
+
 // Wait until page has loaded:
 window.addEventListener("DOMContentLoaded", (event) => {
 
@@ -51,6 +58,10 @@ async function loadLastFile() {
 }
 
 async function handle_project_file_change() {
+
+    // Assume we are not ready to render:
+    _ready_to_render = true;
+
     let _project_file = e("project_files").value;
     console.log( "Project File : " + _project_file );
     if( _project_file == "" ) {
@@ -67,18 +78,44 @@ async function handle_project_file_change() {
                 console.log( "ERROR : " + _d.ERROR );
                 return;
             } else {
-                e("project_name").innerHTML = _project_file;
-                let project_times = _d.anim_start;
-                project_times += ", " + _d.anim_end;
-                project_times += ", " + ( parseInt( _d.anim_end ) - parseInt( _d.anim_start ) );
-                e("project_times").innerHTML = project_times;
-                e("project_resolutions").innerHTML = _d.resolution_x + " x " + _d.resolution_y;
-                storeLastFileName( _project_file );
+
+                // Save Project Data:
+                project_settings = _d;
+
+                // Populate Project Infos:
+                populate_project_infos( _d );
+ 
+                // Store the Project Data:
+                storeProjectData( _d );
             }
         } catch( error ) {
             console.log( error );
         }
     }
+}
+
+async function populate_project_infos( _d ) {
+
+    e("project_name").innerHTML = _d.filename;
+    let project_times = _d.anim_start;
+    project_times += ", " + _d.anim_end;
+    project_times += ", " + ( parseInt( _d.anim_end ) - parseInt( _d.anim_start ) );
+    e("project_times").innerHTML = project_times;
+    e("project_resolutions").innerHTML = _d.resolution_x + " x " + _d.resolution_y;
+
+    // Check that Blend File has a Camera !!!
+    if( _d.camera == "" ) {
+        // Add error class to the Div
+        e("project_camera").classList.add("errorLabel");
+        e("project_camera").innerHTML = "No Camera Found!";
+        
+        _ready_to_render = false; // We Need at least one camera on the Scene !!!
+
+    } else {
+        e("project_camera").classList.remove("errorLabel");
+        e("project_camera").innerHTML = _d.camera;
+    }
+
 }
 
 
@@ -119,7 +156,7 @@ async function populate_nodes() {
             let _node_list_item_status = c("div");
             _node_list_item_checkbox.innerHTML = "<input type='checkbox' name='node' id='node_" + data[i] + "' value='" + data[i] + "' checked></input>";
             _node_list_item_ip.innerHTML = data[i];
-            _node_list_item_status.innerHTML = "&#129001;";
+            _node_list_item_status.innerHTML = _ready_icon;
             _node_list_item.appendChild( _node_list_item_checkbox );
             _node_list_item.appendChild( _node_list_item_ip );
             _node_list_item.appendChild( _node_list_item_status );

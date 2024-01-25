@@ -61,7 +61,6 @@ function startServer(cfg) {
     app.get("/api/get_project_file_info", async (req, res) => {
         let _file = req.query.file;
         console.log( "FILE : " + _file );
-
         let _file_info = await blender.getBlenderFileInformation( res, _file, _config, _local_data );
     });
 

@@ -14,6 +14,7 @@ module.exports = {
             let _juice = stdout.split("§§§§§");
             if( _juice.length >= 2 ) {
                 let _info = JSON.parse( _juice[1]);
+                _info.filename = _file; // Add the filename to the JSON
                 console.log("FILE INFO : (parsed json)");
                 console.log(_info);
                 _res.send( _info );

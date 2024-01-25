@@ -75,20 +75,30 @@ function startNode(cfg) {
         res.send(JSON.stringify(_config.blender_path));
     });
 
+    app.get("/api/render", async (req, res) => {
+        await api_render(res);
+        res.send("OK");
+    });
+
     app.listen(cfg.node_port, () => {
         console.log(`Smoothie::Node - Listening on port ${cfg.node_port}`);
     });
 
-    // Show some information:
-    // console.log("Project folder: " + path.join(__dirname, _config.project_folder));
-    // console.log("Render folder: " + path.join(__dirname, _config.render_folder));
-    // console.log("Logs folder: " + path.join(__dirname, _config.logs_folder));
 }
 
 function api_set_server_ip(req) {
     let _ip = req.query.ip;
     _local_data.server_ip = _ip;
     console.log( "Smoothie::Node - Server Called and gave me an IP : " + _local_data.server_ip );
+}
+
+async function api_render(res) {
+    console.log("API::render");
+
+    // Get Render Instructions from Server
+    
+
+
 }
 
 async function api_blender_version(res) {

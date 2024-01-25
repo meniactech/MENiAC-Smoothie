@@ -27,7 +27,11 @@ print ( split_marker + "{" )
 p( "anim_start", S.frame_start )                    # Start Frame
 p( "anim_end", S.frame_end )                        # End Frame
 p( "resolution_x", S.render.resolution_x )          # Resolution X
-p( "resolution_y", S.render.resolution_y, True )    # Resolution Y
+p( "resolution_y", S.render.resolution_y )          # Resolution Y
+
+# Check for Camera
+if S.camera == None: p( "camera", "", True )        # No Camera
+else: p( "camera", S.camera.name, True )            # Active Camera
 
 # ... Add params as needed.
 

@@ -75,5 +75,13 @@ body {
   .smoothieButtonClass:hover {
     background: linear-gradient(rgba(126, 211, 33, 1), #ffec64);
   }
+
+  .errorLabel {
+    color: #fff;
+    background-color: red;
+    padding: 3px;
+    border-radius: 5px;
+    font-weight: bold;
+  }
               
   

@@ -1,0 +1,48 @@
+SERVER DIRECTORIES:
+.\Config\
+.\Projects\
+.\Render\
+.\Logs\
+
+SERVER FUNCTIONS:
+
+    - StartServer                   - Start the main Smoothie Server
+        - BuildAndStoreEnvironment  - Build and Store Local Directory Structure
+    - FindNodes                     - Find all Nodes in same IP Space
+        - (node::api) SetServerIP   - Pass on the Server's IP to every founded Node
+    - PauseNode (cooldown)          - Set Specific Node into PAUSE state
+        - (node:api) PauseNode
+    - GetNodeState                  - Get Specific Node's current State
+        - (node:api) GetNodeState
+    - SendProjectFilesToNodes       - Send Selected Project File (.blend) to all Nodes
+    - GetBlenderVersion             - Get the current Blender Version
+    - RenderProject                 - Start the Rendering Process
+
+SERVER API's:
+
+    - /api/open_transfer_port       - Open the DELIVERY port for Transfer
+    - /api/close_transfer_port      - Close the Transfer Port
+
+
+NODE DIRECTORIES:
+.\Config\
+.\temp\projects\
+.\temp\media\
+.\temp\logs\
+
+
+NODE FUNCTIONS:
+
+    - StartNode                     - Starts the Smoohie Render Node
+        - BuildAndStoreEnvironment  - Build and Store Local Directory Structure
+    - StartRender
+    - ClearTemp (flush?)            - Clear \temp\projects  - Directory
+    - ClearMedia                    - Clear \temp\media     - Directory
+
+NODE API's:
+
+    - SetServerIP                   - Store the Smoothie Server IP
+    - /api/get_node_state           - Return Node's current State
+    - /api/pause_node               - Set Node's Current State to Pause
+    - /api/open_transfer_port       - Open the DELIVERY port for Transfer
+    - /api/close_transfer_port      - Close the Transfer Port

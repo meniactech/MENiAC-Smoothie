@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MENiAC - Smoothie / Server</title>
+    <link rel="stylesheet" href="./css/smoothie.css">
+    <link rel="stylesheet" href="./css/server.css">
+    <script src="./js/smoothie.js"></script>
+    <script src="./js/server_ui.js"></script>
+</head>
+<script defer>
+
+
+
+</script>
+<body>
+
+    <div id="smoothieLogo">
+        <img src="./img/smoothie_logo.png" alt="Smoothie Logo">
+    </div>
+    <div id="topMenu">
+        <div>SERVER <span class="version_number">0.0</span></div>
+    </div>
+    <div id="topMenu2">
+        <div>MENU ITEMS</div>
+        <div><button id="btn_render" class="smoothieButtonClass">RENDER</button></div>
+        <div>
+            <select id="project_files">
+                <option value="0">Blender Files</option>
+                <option value="0">- - - - - - - - - - -</option>
+            </select>
+            <button id="btn_refresh_project_files">Refresh</button>
+        </div>
+    </div>
+
+    <!-- Project Information -->
+    <div id="project_information">
+        <div class="project_line"><div class="project_title">Project Name:</div><div id="project_name">...</div></div>
+        <div class="project_line"><div class="project_title">Start/End/Duration:</div><div id="project_times">...</div></div>
+        <div class="project_line"><div class="project_title">Render Resolution:</div><div id="project_resolutions">...</div></div>
+    </div>
+
+    <!-- List of Nodes -->
+    <div class="nodes_zone">
+        <div class="nodes_title">Nodes <button id="btn_refresh_nodes">Refresh</button></div>
+        <div id="list_of_nodes"></div>
+    </div>
+    
+    <!-- Local Directory Hierarchy -->
+    <div id="local_directories">
+        <div class="directory_line"><div class="directory_title">Project Directory:</div><div id="project_folder">...</div></div>
+        <div class="directory_line"><div class="directory_title">Render Directory:</div><div id="render_folder">...</div></div>
+        <div class="directory_line"><div class="directory_title">Logs Directory:</div><div id="logs_folder">...</div></div>
+        <div class="directory_line"><div class="directory_title">Temp Projects:</div><div id="temp_projects">...</div></div>
+        <div class="directory_line"><div class="directory_title">Temp Projects:</div><div id="temp_media">...</div></div>
+        <div class="directory_line"><div class="directory_title">Temp Logs:</div><div id="temp_logs">...</div></div>
+    </div>
+
+    <div id="copyright_label">&copy;2024 - MENiAC Oy</div>
+
+</body>
+</html>

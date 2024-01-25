@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MENiAC - Smoothie / Server</title>
+    <link rel="stylesheet" href="./css/smoothie.css">
     <link rel="stylesheet" href="./css/node.css">
-    <script src="./js/node.js"></script>
+    <script src="./js/smoothie.js"></script>
+    <script src="./js/node_ui.js"></script>
 </head>
 <script defer>
 
@@ -18,7 +20,7 @@
         <img src="./img/smoothie_logo.png" alt="Smoothie Logo">
     </div>
     <div id="topMenu">
-        <div>NODE</div>
+        <div>NODE <span class="version_number">0.0</span></div>
     </div>
     <div id="topMenu2">
         <div>MENU ITEMS</div>
@@ -27,10 +29,9 @@
     </div>
 
     <div id="local_directories">
-        <div class="directory_line">
-            <div class="directory_title">Blender Directory:</div>
-            <div id="blender_directory">...</div>
-        </div>
+        <div class="directory_line"><div class="directory_title">Blender Directory:</div><div id="blender_directory">...</div></div>
+        <div class="directory_line"><div class="directory_title">Blender Version:</div><div id="blender_version">...</div></div>
+        <div class="directory_line"><div class="directory_title">Server IP:</div><div id="server_ip">...</div></div>
     </div>
 
 

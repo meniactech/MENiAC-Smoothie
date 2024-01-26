@@ -1,4 +1,16 @@
-// Desc: Smoothie Server related Functionality
+// Desc: Smoothie Server UI related Functionality
+
+let _show_debug = false;
+
+/*  FUNCTIONS
+
+    get_directories()               - Retrieves the Folder Hierachy
+    loadLastFile()                  - Loads the last file that was opened
+    handle_project_file_change()    - Handles the Project File selectors Change
+    populate_project_infos( _d )    - Populates the Project Infos into the UI
+    populate_project_files()        - Populates the Project Files into the File Selector
+
+*/
 
 // Are we ready to render?
 let _ready_to_render = false;
@@ -31,8 +43,25 @@ window.addEventListener("DOMContentLoaded", (event) => {
 
 });
 
+async function startRender() {
+
+    if( project_settings.filename == "" ) {
+        alert( "ERROR : Cannot start render, no project selected!" );
+        return;
+    }
+
+    if( _ready_to_render == false ) {
+        alert( "ERROR : Some settings are still missing, please check!" );
+        return;
+    }
+
+
+
+
+
+}
+
 async function get_directories() {
-    console.log( "Getting directories..." );
     let _d = await apiCall( '/api/get_directories' );
     if( _d == null ) {
         console.log( "ERROR : Could not get directories." );
@@ -50,20 +79,17 @@ async function get_directories() {
 async function loadLastFile() {
     let _last_filename = getLastFileName();
     if( _last_filename != null ) {
-        console.log("Loading last file ... " + _last_filename );
+        if( _show_debug ) console.log("Loading last file ... " + _last_filename );
         e("project_files").value = _last_filename;
-        console.log( "Select : " +  e("project_files").value );
+        if( _show_debug ) console.log( "Select : " +  e("project_files").value );
         handle_project_file_change();
     }
 }
 
 async function handle_project_file_change() {
-
-    // Assume we are not ready to render:
-    _ready_to_render = true;
-
+    _ready_to_render = true;    // Assume we are not ready to render:
     let _project_file = e("project_files").value;
-    console.log( "Project File : " + _project_file );
+    if( _show_debug ) console.log( "Project File : " + _project_file );
     if( _project_file == "" ) {
         e("project_name").innerHTML = "...";
         e("project_times").innerHTML = "...";
@@ -71,22 +97,16 @@ async function handle_project_file_change() {
         return;
     } else {
         let _d = await apiCall( '/api/get_project_file_info?file=' + _project_file );
-        console.log( "Project File Info : " );
-        console.log( _d );
+        if( _show_debug ) console.log( "Project File Info : " );
+        if( _show_debug ) console.log( _d );
         try {
             if( _d.ERROR ) {
                 console.log( "ERROR : " + _d.ERROR );
                 return;
             } else {
-
-                // Save Project Data:
-                project_settings = _d;
-
-                // Populate Project Infos:
-                populate_project_infos( _d );
- 
-                // Store the Project Data:
-                storeProjectData( _d );
+                project_settings = _d;          // Save Project Data:
+                populate_project_infos( _d );   // Populate Project Infos:
+                storeProjectData( _d );         // Store the Project Data:
             }
         } catch( error ) {
             console.log( error );
@@ -95,36 +115,28 @@ async function handle_project_file_change() {
 }
 
 async function populate_project_infos( _d ) {
-
     e("project_name").innerHTML = _d.filename;
     let project_times = _d.anim_start;
     project_times += ", " + _d.anim_end;
     project_times += ", " + ( parseInt( _d.anim_end ) - parseInt( _d.anim_start ) );
     e("project_times").innerHTML = project_times;
     e("project_resolutions").innerHTML = _d.resolution_x + " x " + _d.resolution_y;
-
-    // Check that Blend File has a Camera !!!
-    if( _d.camera == "" ) {
+    if( _d.camera == "" ) {    // Check that Blend File has a Camera !!!
         // Add error class to the Div
         e("project_camera").classList.add("errorLabel");
         e("project_camera").innerHTML = "No Camera Found!";
-        
         _ready_to_render = false; // We Need at least one camera on the Scene !!!
-
     } else {
         e("project_camera").classList.remove("errorLabel");
         e("project_camera").innerHTML = _d.camera;
     }
-
 }
 
-
 async function populate_project_files() {
-
-    console.log( "Populating project files..." );
+    if( _show_debug ) console.log( "Populating project files..." );
     let _files = await fetch( '/api/project-files' );
     let _files_json = await _files.json().then( (data) => {
-        console.log( "Files in project folder : " + data.length );
+        if( _show_debug ) console.log( "Files in project folder : " + data.length );
         e("project_files").innerHTML = "<option value=''>Blender Files</option>";
         e("project_files").innerHTML += "<option value=''>- - - - - - - - - - -</option>";
         for( let i=0; i<data.length; i++ ) {
@@ -143,10 +155,10 @@ async function populate_nodes() {
     let _nodes_update = await fetch( '/api/rebuild_nodes' );
     let _nodes = await fetch( '/api/get_nodes' );
     let _nodes_json = await _nodes.json().then( (data) => {
-        console.log( "Populating nodes..." );
-        console.log( data );
+        if( _show_debug ) console.log( "Populating nodes..." );
+        if( _show_debug ) console.log( data );
         for( let i=0; i<data.length; i++ ) {
-            console.log( data[i] );
+            if( _show_debug ) console.log( data[i] );
             let _node_list_item = c("div");
             _node_list_item.classList.add("node_list_item");
             let _node_list_item_checkbox = c("div");

@@ -3,7 +3,7 @@
 
 <br>
 
-This is my first (attempt) to do NodeJs application. Everything is at this point
+This is project is in  it's starting stage. At this point it actually doesn't do anything yet. This is laos my first (attempt) to do NodeJs application. Everything is at this point
 hugely put together with bubble gum.
 
 <BR>

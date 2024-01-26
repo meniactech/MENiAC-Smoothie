@@ -1,3 +1,7 @@
+# Ignore the config.json file, so that you can put your own Blender location in it
+# And not have to worry about accidentally committing it
+config.json
+
 # Logs
 logs
 *.log

@@ -10,8 +10,9 @@ instructions to nodes.
 ------------------------------------------------ */
 
 const express       = require("express");
-const router        = express.Router();
 const fs            = require("fs");
+const multer        = require("multer");
+let   receive_rendered_image_file; // Multer for rendered images
 const fetch         = require("node-fetch"); // Node-Fetch version 2 !!!
 const cors          = require("cors");
 const path          = require("path");
@@ -20,11 +21,13 @@ const ip            = require("ip");
 const environment   = require("./modules/environment.js");
 const blender       = require("./modules/blender.js");
 const status_codes  = require("./modules/status_codes.js");
+const { start } = require("repl");
 
 let _config         = {}; // Contains the config.json Data
 let _local_data     = {}; // Filled with data from config.json and converted to local paths
 let _smoothie_nodes = []; // List of nodes in the network
 let _project_files  = []; // List of files in the project folder
+let _project_info   = {}; // Information about the current project
 
 // ------------------------------------ //
 //     Load Config and Start Server     //
@@ -35,6 +38,14 @@ fs.readFile("./config/config.json", "utf8", (error, data) => {
         return;
     }
     _config = JSON.parse(data);
+    
+    // Set the upload folder and right file names for transferred images
+    receive_rendered_image_file = multer.diskStorage({
+        destination: function (req, file, cb) { cb(null, _config.render_folder ); },
+        filename: function (req, file, cb) { cb(null, file.originalname ); } // Keep the original name
+    });
+
+    // Start the server
     startServer(_config);
 });
 
@@ -61,9 +72,26 @@ function startServer(cfg) {
     app.get("/api/get_project_file_info", async (req, res) => {
         let _file = req.query.file;
         console.log( "FILE : " + _file );
-        let _file_info = await blender.getBlenderFileInformation( res, _file, _config, _local_data );
+        _project_info = await blender.getBlenderFileInformation( res, _file, _config, _local_data );
+        console.log( "PROJECT INFO : " + _project_info );
     });
 
+
+    app.get("/api/render", (req, res) => {
+        if( req.query.file == "" ) {
+            res.send("File Missing!");
+        } else {
+            res.sendFile( req.query.file + " : OK");
+        }
+    });
+
+    app.get('/api/start_render', async (req, res) => {
+        let _file = req.query.file;
+        console.log( "Starting Render : " + _file );
+        let _render_info = await startRender( _file );
+        console.log( _render_info );
+        res.send( "OK" );
+    });
 
     app.get("/api/get_directories", (req, res) => {
         // console.log(_local_data);
@@ -96,7 +124,28 @@ function startServer(cfg) {
 }
 
 
+async function startRender( _filename ) {
 
+    console.log( "Starting Render Procedure ..." );
+    console.log( "Sending File to Nodes: " + _filename );
+
+    return "Render OK";
+
+    var formdata = new FormData();
+    formdata.append("blend_file", fileInput.files[0], "D:\dev\MENiAC_Smoothie\projects\file_1.blend");
+
+    var requestOptions = {
+        method: 'POST',
+        body: formdata,
+        redirect: 'follow'
+    };
+
+    fetch("localhost:8009/api/reveive_blend_file?file", requestOptions)
+        .then(response => response.text())
+        .then(result => console.log(result))
+        .catch(error => console.log('error', error));
+
+}
 
 async function api_scan_nodes() {
     // Loop through all nodes in my ip space

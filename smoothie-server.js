@@ -51,6 +51,9 @@ fs.readFile("./config/config.json", "utf8", (error, data) => {
 
 function startServer(cfg) {
 
+    // Clear Console
+    console.clear();
+
     // Check and Build Environment Folder Structure
     _local_data = environment.build(_config);
 
@@ -71,9 +74,16 @@ function startServer(cfg) {
 
     app.get("/api/get_project_file_info", async (req, res) => {
         let _file = req.query.file;
-        console.log( "FILE : " + _file );
-        _project_info = await blender.getBlenderFileInformation( res, _file, _config, _local_data );
-        console.log( "PROJECT INFO : " + _project_info );
+        let _b = checkIfRequestedFileExistsInProjectFolder( _file );
+
+        if( _b ) {
+            console.log( "FILE : " + _file );
+            _project_info = await blender.getBlenderFileInformation( res, _file, _config, _local_data );
+            console.log( "PROJECT INFO : " + _project_info );
+        } else {
+            res.send( `{ "ERROR" : "[0001] Saved Project File not found." }` );
+        }
+
     });
 
 
@@ -121,6 +131,14 @@ function startServer(cfg) {
     // console.log(_local_data);
     // console.log(_nodes);
     // console.log(_project_files);
+}
+
+function checkIfRequestedFileExistsInProjectFolder( _file ) {
+    let _b = false;
+    for( let i = 0; i < _project_files.length; i++ ) {
+        if( _project_files[i] == _file ) _b = true;
+    }
+    return _b;
 }
 
 

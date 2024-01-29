@@ -30,7 +30,7 @@ module.exports = {
         const child = execFile( _cfg.blender_path, ["-v"], (error, stdout, stderr) => {
             if (error) { throw error; }
             let _version = stdout.split("\n").shift().trim();
-            console.log(_version);
+            console.log("In Case You Didn't Know Your Blender Version, it's " + _version);
             return _version;
         });
     }

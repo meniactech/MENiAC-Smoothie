@@ -17,6 +17,7 @@ const cors          = require("cors");
 const path          = require("path");
 const app           = express();
 const environment   = require("./modules/environment.js");
+const blender       = require("./modules/blender.js");
 const status_codes  = require("./modules/status_codes.js");
 
 let _config         = {}; // Contains the config.json Data
@@ -37,6 +38,9 @@ fs.readFile("./config/config.json", "utf8", (error, data) => {
 });
 
 function startNode(cfg) {
+
+    // Clear Console
+    console.clear();
 
     // Check and Build Environment Folder Structure
     _local_data = environment.build(_config);
@@ -63,7 +67,10 @@ function startNode(cfg) {
 
     // Get Blender Version
     app.get("/api/blender_version", async (req, res) => {
-        await api_blender_version(res);
+        let _version = await blender.getBlenderVersion( _config );
+        let _sent_res = { data: _version };
+        console.log("Sending response : " + JSON.stringify(_sent_res));
+        res.json(_sent_res);
     });
 
     // Get Server IP
@@ -101,22 +108,22 @@ async function api_render(res) {
 
 }
 
-async function api_blender_version(res) {
-    console.log("API::blender_version");
-    const { execFile } = require("node:child_process");
-    const child = await execFile( _config.blender_path, ["-v"], (error, stdout, stderr) => {
-        if (error) { throw error; }
-        let _version = stdout.split("\n").shift().trim();
-        console.log(_version);
-        if (res != undefined && res != null) {
-            _sent_res = { data: _version };
-            console.log("Sending response : " + JSON.stringify(_sent_res));
-            res.json(_sent_res);
-        } else {
-            _local_data.blender_version = _version;
-        }
-    });
-}
+// async function api_blender_version( res ) {
+//     console.log("API::blender_version");
+//     const { execFile } = require("node:child_process");
+//     const child = await execFile( _config.blender_path, ["-v"], (error, stdout, stderr) => {
+//         if (error) { throw error; }
+//         let _version = stdout.split("\n").shift().trim();
+//         console.log(_version);
+//         if (res != undefined && res != null) {
+//             _sent_res = { data: _version };
+//             console.log("Sending response : " + JSON.stringify(_sent_res));
+//             res.json(_sent_res);
+//         } else {
+//             _local_data.blender_version = _version;
+//         }
+//     });
+// }
 
 function api_get_server_ip() {
     console.log(_local_data.server_ip);

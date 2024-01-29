@@ -32,6 +32,12 @@ window.addEventListener("DOMContentLoaded", (event) => {
     let _project_files = e("project_files");
     _project_files.addEventListener( "change", handle_project_file_change );
 
+    let _environment_info = e("btn_environment_info");
+    _environment_info.addEventListener( "click", showEnvironmentInfo );
+
+    let _modal_window = e("modalWindow");
+    _modal_window.addEventListener( "click", hideModal );
+
     // Populate the list of Projects
     populate_project_files();
 
@@ -42,6 +48,10 @@ window.addEventListener("DOMContentLoaded", (event) => {
     populate_nodes();
 
 });
+
+
+function showEnvironmentInfo() { e("modalWindow").style.display = "flex"; }
+function hideModal() { e("modalWindow").style.display = "none"; }
 
 async function startRender() {
 
@@ -102,6 +112,9 @@ async function handle_project_file_change() {
         try {
             if( _d.ERROR ) {
                 console.log( "ERROR : " + _d.ERROR );
+
+                handle_error( _d.ERROR );
+
                 return;
             } else {
                 project_settings = _d;          // Save Project Data:
@@ -179,4 +192,15 @@ async function populate_nodes() {
     });
 }
 
+handle_error = ( _error ) => {
 
+    switch( _error.substring(1, 4) ) {
+        case "0001":
+            console.error( "ERROR : File Doesn't exists anymore?" );
+            clearProjectData();
+            break;
+        default:
+            console.error( "ERROR : Unknown Error." );
+            break;
+    }
+}

@@ -44,6 +44,8 @@ body {
     font-size: 0.8rem;
     color: #000;
     text-align: center;
+    text-decoration: none;
+    text-decoration-line: none;
 }
 
 .version_number {

@@ -10,9 +10,12 @@ instructions to nodes.
 ------------------------------------------------ */
 
 const express       = require("express");
+const axios         = require('axios');
+const FormData      = require('form-data');
 const fs            = require("fs");
 const multer        = require("multer");
 let   receive_rendered_image_file; // Multer for rendered images
+let   rendered_image_upload;
 const fetch         = require("node-fetch"); // Node-Fetch version 2 !!!
 const cors          = require("cors");
 const path          = require("path");
@@ -44,6 +47,7 @@ fs.readFile("./config/config.json", "utf8", (error, data) => {
         destination: function (req, file, cb) { cb(null, _config.render_folder ); },
         filename: function (req, file, cb) { cb(null, file.originalname ); } // Keep the original name
     });
+    rendered_image_upload = multer({ storage: receive_rendered_image_file });
 
     // Start the server
     startServer(_config);
@@ -83,9 +87,7 @@ function startServer(cfg) {
         } else {
             res.send( `{ "ERROR" : "[0001] Saved Project File not found." }` );
         }
-
     });
-
 
     app.get("/api/render", (req, res) => {
         if( req.query.file == "" ) {
@@ -97,10 +99,10 @@ function startServer(cfg) {
 
     app.get('/api/start_render', async (req, res) => {
         let _file = req.query.file;
-        console.log( "Starting Render : " + _file );
+        console.log( "/api/start_render : " + _file );
         let _render_info = await startRender( _file );
         console.log( _render_info );
-        res.send( "OK" );
+        res.send({ "render_start" : _render_info });
     });
 
     app.get("/api/get_directories", (req, res) => {
@@ -125,12 +127,6 @@ function startServer(cfg) {
         api_scan_nodes();
     });
 
-
-
-    // console.log(_config);
-    // console.log(_local_data);
-    // console.log(_nodes);
-    // console.log(_project_files);
 }
 
 function checkIfRequestedFileExistsInProjectFolder( _file ) {
@@ -147,21 +143,28 @@ async function startRender( _filename ) {
     console.log( "Starting Render Procedure ..." );
     console.log( "Sending File to Nodes: " + _filename );
 
-    return "Render OK";
+    let _absolute_file_and_path = path.join( _local_data.project_folder, _filename );
 
-    var formdata = new FormData();
-    formdata.append("blend_file", fileInput.files[0], "D:\dev\MENiAC_Smoothie\projects\file_1.blend");
+    console.log( _absolute_file_and_path );
 
-    var requestOptions = {
-        method: 'POST',
-        body: formdata,
-        redirect: 'follow'
-    };
+    await environment.transferFile( _absolute_file_and_path, _smoothie_nodes[0], _config.node_port, "/api/transfer_blend_file", "blend_file" )
+    .then( (response) => {
+        
+        // Fetch call to Api 'api/render' to node to start rendering
+        let _render_info = fetch( `http://${_smoothie_nodes[0]}:${_config.node_port}/api/render?file=${_filename}` )
+            .then( (res) => res.text() )
+            .then( (text) => {
+                console.log( text );
+                return text;
+            })
+            .catch( (error) => {
+                console.log( error );
+            });
 
-    fetch("localhost:8009/api/reveive_blend_file?file", requestOptions)
-        .then(response => response.text())
-        .then(result => console.log(result))
-        .catch(error => console.log('error', error));
+    }).catch( (error) => {
+        console.log( error );
+    });
+    
 
 }
 

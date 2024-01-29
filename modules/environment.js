@@ -1,3 +1,5 @@
+const axios = require("axios");
+const FormData = require("form-data");
 const fs = require("fs");
 const path = require("path");
 
@@ -23,7 +25,7 @@ module.exports = {
 
         // Path to Blender
         if( _cfg.blender_path == "" ) {
-            console.error( "ERROR : Blender Path not set!" );
+            console.error( "\x1b[31mERROR\x1b[0m : Blender Path not set!" );
             process.exit(1);
         } else {
             _local_structure.blender_path = _cfg.blender_path;
@@ -73,6 +75,28 @@ module.exports = {
             }
         }
         return _blender_files;
+    },
+
+    transferFile: async function ( _file, _target, _port, _api, _type ) {
+
+        let data = new FormData();
+        data.append( _type , fs.createReadStream( _file ) );
+
+        let config = {
+            method: 'post',
+            maxBodyLength: Infinity,
+            url: 'http://' + _target + ":" + _port + _api,
+            headers: { ...data.getHeaders() },
+            data : data
+        };
+
+        axios.request(config)
+        .then( ( response ) => {
+            console.log(JSON.stringify(response.data));
+        }).catch( ( error ) => {
+            console.log( error );
+        });
+
     }
 
 }

@@ -2,6 +2,7 @@
 # And not have to worry about accidentally committing it
 config/
 config/config.json
+junk.txt
 
 # Logs
 logs

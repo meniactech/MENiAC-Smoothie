@@ -12,6 +12,9 @@
 
 const express       = require("express");
 const fs            = require("fs");
+const multer        = require("multer");
+let   storage_blender_file; // Multer for Blender files
+let   blender_file_upload;
 const fetch         = require("node-fetch"); // Node-Fetch version 2 !!!
 const cors          = require("cors");
 const path          = require("path");
@@ -19,6 +22,7 @@ const app           = express();
 const environment   = require("./modules/environment.js");
 const blender       = require("./modules/blender.js");
 const status_codes  = require("./modules/status_codes.js");
+const { stdout }    = require("process");
 
 let _config         = {}; // Contains the config.json Data
 let _local_data     = {}; // Filled with data from config.json and converted to local paths
@@ -34,6 +38,15 @@ fs.readFile("./config/config.json", "utf8", (error, data) => {
         return;
     }
     _config = JSON.parse(data);
+
+    // Set the upload folder and right file names for transferred blender files
+    storage_blender_file = multer.diskStorage({
+        destination: function (req, file, cb) { cb(null, _config.temp_projects ); },
+        filename: function (req, file, cb) { cb(null, file.originalname ); } // Keep the original name
+    });
+    blender_file_upload = multer({ storage: storage_blender_file });
+
+    // Start the node
     startNode(_config);
 });
 
@@ -45,11 +58,11 @@ function startNode(cfg) {
     // Check and Build Environment Folder Structure
     _local_data = environment.build(_config);
 
-    app.use(cors());
-    app.use(express.static(path.join(__dirname, "html")));
+    app.use( cors() );
+    app.use( express.static( path.join(__dirname, "html" ) ) );
 
     app.get("/", (req, res) => {
-        res.sendFile(path.join(__dirname, "/html/node_ui.html"));
+        res.sendFile( path.join( __dirname, "/html/node_ui.html" ) );
     });
 
     app.get("/api/ring", (req, res) => {
@@ -67,10 +80,7 @@ function startNode(cfg) {
 
     // Get Blender Version
     app.get("/api/blender_version", async (req, res) => {
-        let _version = await blender.getBlenderVersion( _config );
-        let _sent_res = { data: _version };
-        console.log("Sending response : " + JSON.stringify(_sent_res));
-        res.json(_sent_res);
+        await blender.getBlenderVersion( res, _config );
     });
 
     // Get Server IP
@@ -83,47 +93,26 @@ function startNode(cfg) {
     });
 
     app.get("/api/render", async (req, res) => {
-        await api_render(res);
+        blender.render( req, res, _config, _local_data );
+        // await render( req, res );
+        res.send("OK");
+    });
+
+    app.post("/api/transfer_blend_file", blender_file_upload.single("blend_file"), (req, res) => {
+        console.log("\x1b[35mSmoothie::Node\x1b[0m - Receiving Blender File " + req.file.name + " from Server.");
         res.send("OK");
     });
 
     app.listen(cfg.node_port, () => {
-        console.log(`Smoothie::Node - Listening on port ${cfg.node_port}`);
+        console.log(`\x1b[35mSmoothie::Node\x1b[0m - Listening on port ${cfg.node_port}`);
     });
-
 }
 
 function api_set_server_ip(req) {
     let _ip = req.query.ip;
     _local_data.server_ip = _ip;
-    console.log( "Smoothie::Node - Server Called and gave me an IP : " + _local_data.server_ip );
+    console.log( "\x1b[35mSmoothie::Node\x1b[0m - Server Called and gave me an IP : " + _local_data.server_ip );
 }
-
-async function api_render(res) {
-    console.log("API::render");
-
-    // Get Render Instructions from Server
-    
-
-
-}
-
-// async function api_blender_version( res ) {
-//     console.log("API::blender_version");
-//     const { execFile } = require("node:child_process");
-//     const child = await execFile( _config.blender_path, ["-v"], (error, stdout, stderr) => {
-//         if (error) { throw error; }
-//         let _version = stdout.split("\n").shift().trim();
-//         console.log(_version);
-//         if (res != undefined && res != null) {
-//             _sent_res = { data: _version };
-//             console.log("Sending response : " + JSON.stringify(_sent_res));
-//             res.json(_sent_res);
-//         } else {
-//             _local_data.blender_version = _version;
-//         }
-//     });
-// }
 
 function api_get_server_ip() {
     console.log(_local_data.server_ip);

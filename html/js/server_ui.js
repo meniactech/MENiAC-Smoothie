@@ -32,6 +32,9 @@ window.addEventListener("DOMContentLoaded", (event) => {
     let _project_files = e("project_files");
     _project_files.addEventListener( "change", handle_project_file_change );
 
+    let _start_render_button = e("btn_render");
+    _start_render_button.addEventListener( "click", startRender );
+
     let _environment_info = e("btn_environment_info");
     _environment_info.addEventListener( "click", showEnvironmentInfo );
 
@@ -65,9 +68,15 @@ async function startRender() {
         return;
     }
 
+    console.log("Project Settings : ");
+    console.log( project_settings.filename );
+    let _render_info = await apiCall( '/api/start_render?file=' + project_settings.filename );
 
-
-
+    let _render_info_json = await _render_info.json().then( (data) => {
+        console.log( data );
+    }).catch( (error) => {
+        console.log( error );
+    });
 
 }
 

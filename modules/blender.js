@@ -2,17 +2,22 @@ const express       = require("express");
 const { execFile }  = require("node:child_process");
 const { spawn }     = require("node:child_process");
 const path          = require("node:path");
-
-let rendered_image_data = {};
+const status_codes  = require("./status_codes.js");
 
 module.exports = {
 
-    // Command Line Arguments for rendering:
-    // blender -b d:\temp\scenes\ball.blend -o d:\temp\scenes\ball_####.png --render-frame 1 --render-format PNG --engine CYCLES
+    render_info: {
+        frame: "",
+        time: "",
+        samples: "",
+        scene: "",
+        memory: "",
+        remaining: "",
+        file: ""
+    },
 
     getBlenderFileInformation: async function( _res, _file, _cfg, _ld ) {
 
-        // console.log("getBlenderFileInformation");
         const child = await execFile( _cfg.blender_path, ["-b", path.join( _ld.project_folder, _file ), "--python", path.join( _ld.root_folder, "smoothie.py")], (error, stdout, stderr) => {
             if (error) {
                 console.log(error);
@@ -42,15 +47,20 @@ module.exports = {
         });
     },
 
-    render: async function( _req, _res, _c, _ld ) {
+    getRenderInfo: function() {
+        return this.render_info;
+    },
 
-        console.log("Blender::render - File : " + _req.query.file );
+    render: async function( _req, _res, _c, _ld, _gui ) {
 
-        console.log( _c );
-        console.log( _ld );
+        // Set Node State to RENDERING
+        _gui( status_codes.RENDERING );
 
+        // console.log("Blender::render - File : " + _req.query.file );
+        this.render_info = {
+            file: _req.query.file,
+        };
         let fixed_file_name = _req.query.file.replace( ".blend", "" );
-
         const _br = spawn(
             _c.blender_path,
             [
@@ -69,59 +79,58 @@ module.exports = {
 
         _br.stdout.on('data', (data) => {
 
-            /*
-            Fra:1 Mem:279.83M (Peak 409.49M) | Time:00:28.33 | Remaining:00:00.43 | Mem:593.14M, Peak:593.14M | Scene, ViewLayer | Sample 1008/1024
-            Fra:1 Mem:343.11M (Peak 438.04M) | Time:00:31.72 | Mem:593.14M, Peak:593.14M | Scene, ViewLayer | Sample 1024/1024
-            Fra:1 Mem:343.11M (Peak 438.04M) | Time:00:31.72 | Mem:593.14M, Peak:593.14M | Scene, ViewLayer | Finished
-            Saved: 'd:\temp\scenes\ball_0001.png'
-            Time: 00:32.16 (Saving: 00:00.36)
-            */
-
+            
             switch( data.toString().substring(0,3) ) {
                 case "Fra" :
-
+                    
+                    // Get The Juice
                     let _juice = data.toString().split("|");
 
-                    rendered_image_data.frame = _juice[0].substring(4);
-                    rendered_image_data.time = _juice[1];
+                    // 'Fra:1 Mem:279.83M (Peak 409.49M) '
+                    this.render_info.frame = _juice[0].trim().replace("Fra:","").split(" ")[0];
 
-                    let _i_fix = 0;
-                    if( _juice.length == 6) _i_fix = 1;
+                    // ' Time:00:28.33 '
+                    this.render_info.time = _juice[1].trim().replace("Time:","");
 
+                    // ' Remaining:00:00.43 '
+                    if( _juice.length == 6 ) this.render_info.remaining = _juice[2].trim().replace("Remaining:","");
+                    else this.render_info.remaining = "00:00.00";
 
-                    rendered_image_data.samples = _juice[ 4 + _i_fix ];
-                    rendered_image_data.scene   = _juice[ 3 + _i_fix ];
-                    rendered_image_data.memory  = _juice[ 2 + _i_fix ];
-                    
-                    rendered_image_data.remaining = _juice[ 2 ];
+                    // Lenght of the Juice array
+                    let _last_juice = _juice.length - 1;
 
-                    _res.send( rendered_image_data );
-                    
-                    // console.log( data.toString() );
+                    // ' Mem:593.14M, Peak:593.14M '
+                    this.render_info.memory = _juice[ _last_juice - 2 ].trim();
+
+                    // ' Scene, ViewLayer '
+                    this.render_info.scene = _juice[ _last_juice - 1 ].trim();
+
+                    // ' Sample 1008/1024 ' or ' Finished '
+                    this.render_info.samples = _juice[ _last_juice ].trim().trim().replace("Sample ","");
+
+                    _gui( status_codes.RENDERING );
+                    // console.log( data.toString().trim() );
                     break;
                 case "Sav" :
-                    rendered_image_data.file = data.toString();
-                    // console.log( data.toString() );
+                    // console.log( data.toString().trim() );
                     break;
                 case "Tim" :
-                    rendered_image_data.time = data.toString();
+                    // console.log( data.toString().trim() );
                     break;
                 default :
-                    console.log( data.toString() );
+                    // console.log( data.toString() );
                     break;
             }
-
-            // console.log(`stdout: ${data}`);
         });
 
         _br.stderr.on('data', (data) => {
-            console.error(`stderr: ${data}`);
+            _gui( status_codes.ERROR );
+            console.log(`stderr: ${data}`);
         });
 
         _br.on('close', (code) => {
-            console.log(`child process exited with code ${code}`);
+            _gui( status_codes.READY );
+            console.log(`Done with code ${code}`);
           }); 
-
     }
-
 }

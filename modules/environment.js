@@ -41,6 +41,9 @@ module.exports = {
         _local_structure.temp_media = this.checkAndBuild( _root_level, _cfg.temp_media );
         _local_structure.temp_logs = this.checkAndBuild( _root_level, _cfg.temp_logs );
 
+        // console.log( "\x1b[32mEnvironment\x1b[0m : " );
+        // console.log( _local_structure );
+
         return _local_structure;
 
     },

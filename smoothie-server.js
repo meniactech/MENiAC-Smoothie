@@ -24,7 +24,8 @@ const ip            = require("ip");
 const environment   = require("./modules/environment.js");
 const blender       = require("./modules/blender.js");
 const status_codes  = require("./modules/status_codes.js");
-const { start } = require("repl");
+
+// const { ConsoleManager } = require('console-gui-tools');
 
 let _config         = {}; // Contains the config.json Data
 let _local_data     = {}; // Filled with data from config.json and converted to local paths
@@ -51,12 +52,17 @@ fs.readFile("./config/config.json", "utf8", (error, data) => {
 
     // Start the server
     startServer(_config);
+
+    // Start the GUI
+    // drawGui();
 });
+
+
 
 function startServer(cfg) {
 
     // Clear Console
-    console.clear();
+    // console.clear();
 
     // Check and Build Environment Folder Structure
     _local_data = environment.build(_config);
@@ -81,9 +87,9 @@ function startServer(cfg) {
         let _b = checkIfRequestedFileExistsInProjectFolder( _file );
 
         if( _b ) {
-            console.log( "FILE : " + _file );
+            // console.log( "FILE : " + _file );
             _project_info = await blender.getBlenderFileInformation( res, _file, _config, _local_data );
-            console.log( "PROJECT INFO : " + _project_info );
+            // console.log( "PROJECT INFO : " + _project_info );
         } else {
             res.send( `{ "ERROR" : "[0001] Saved Project File not found." }` );
         }
@@ -99,9 +105,9 @@ function startServer(cfg) {
 
     app.get('/api/start_render', async (req, res) => {
         let _file = req.query.file;
-        console.log( "/api/start_render : " + _file );
+        // console.log( "/api/start_render : " + _file );
         let _render_info = await startRender( _file );
-        console.log( _render_info );
+        // console.log( _render_info );
         res.send({ "render_start" : _render_info });
     });
 
@@ -119,11 +125,27 @@ function startServer(cfg) {
         res.send(JSON.stringify(_smoothie_nodes));
     });
 
+    app.get("/api/get_render_formats", (req, res) => {
+        res.send(JSON.stringify(_config.render_formats));
+    });
+
+    app.get("/api/transfer_rendered_images", rendered_image_upload.single("rendered_image"), (req, res) => {
+        environment.transferFile(
+            path.join( _config.render_folder, req.file.originalname ),
+            _config.server_ip,
+            _config.server_port,
+            "/api/receive_rendered_image",
+            "rendered_image"
+        );
+        // console.log("Received Rendered Image File : " + req.file.originalname );
+        res.send("OK");
+    });
+
     app.listen(cfg.server_port, () => {
         _local_data.server_ip = ip.address();
-        console.log("Smoothie Server Online.");
-        console.log("System IP Address: " + _local_data.server_ip);
-        console.log(`Smoothie listening on port ${cfg.server_port}`);
+        // console.log("Smoothie Server Online.");
+        // console.log("System IP Address: " + _local_data.server_ip);
+        // console.log(`Smoothie listening on port ${cfg.server_port}`);
         api_scan_nodes();
     });
 
@@ -140,12 +162,12 @@ function checkIfRequestedFileExistsInProjectFolder( _file ) {
 
 async function startRender( _filename ) {
 
-    console.log( "Starting Render Procedure ..." );
-    console.log( "Sending File to Nodes: " + _filename );
+    // console.log( "Starting Render Procedure ..." );
+    // console.log( "Sending File to Nodes: " + _filename );
 
     let _absolute_file_and_path = path.join( _local_data.project_folder, _filename );
 
-    console.log( _absolute_file_and_path );
+    // console.log( _absolute_file_and_path );
 
     await environment.transferFile( _absolute_file_and_path, _smoothie_nodes[0], _config.node_port, "/api/transfer_blend_file", "blend_file" )
     .then( (response) => {
@@ -154,11 +176,11 @@ async function startRender( _filename ) {
         let _render_info = fetch( `http://${_smoothie_nodes[0]}:${_config.node_port}/api/render?file=${_filename}` )
             .then( (res) => res.text() )
             .then( (text) => {
-                console.log( text );
+                // console.log( text );
                 return text;
             })
             .catch( (error) => {
-                console.log( error );
+                // console.log( error );
             });
 
     }).catch( (error) => {

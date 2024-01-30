@@ -72,12 +72,6 @@ async function startRender() {
     console.log( project_settings.filename );
     let _render_info = await apiCall( '/api/start_render?file=' + project_settings.filename );
 
-    let _render_info_json = await _render_info.json().then( (data) => {
-        console.log( data );
-    }).catch( (error) => {
-        console.log( error );
-    });
-
 }
 
 async function get_directories() {

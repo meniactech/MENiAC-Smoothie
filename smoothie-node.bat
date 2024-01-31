@@ -1,1 +1,1 @@
-nodemon smoothie-node.js
+node smoothie-node.js

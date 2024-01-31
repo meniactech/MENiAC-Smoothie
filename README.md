@@ -16,9 +16,12 @@ This project is in it's early "idea/concept" stage. At this point it doesn't act
 
 <BR>
 
+
 <a id="server"></a>
 
 ## The Server
+
+<img src="html/img/screenshots/screen_shot_server_alpha.png" />
 
 Runs in port 8008 by Default.
 
@@ -32,19 +35,18 @@ Runs in port 8008 by Default.
 
 <BR>
 
+
 <a id="nodes"></a>
 
 ## The Nodes
+
+<img src="html/img/screenshots/screen_shot_node_alpha.png" />
 
 The Node Instanses Runs in Port 8009 by Default.
 
 ### To Start Node
 
-- `Smoothie-node.bat` ( runs 'nodemon Smoothie-node.js' ) - Practical for development use, since nodemon restarts everytime the user updates/saves files.
-
-- `nodemon Smoothie-node.js`
-
-- `node Smoothie-node.js` ( the OG way )
+- `Smoothie-node.bat` ( runs 'node Smoothie-node.js' ) - Should be using node to run, since nodemon gives error in **console-gui-tools**.
 
 <BR>
 
@@ -81,14 +83,14 @@ The Node Instanses Runs in Port 8009 by Default.
 |"url"|"127.0.0.1"|Not Implemented yet. Machines IP.|
 |"server_port"|8008|Port that Server uses.|
 |"node_port"|8009|Port that Nodes use.|
-|"media_port"|8010|Not implemented yet. Used for file transfer: <br> - Server > Blender File > Node <br> - Node > Rendered File > Server|
+|"media_port"|8010|Obsolete. Not used anymore.|
 |"blender_path"|  |Absolute Path to the Blender executable.|
-|"project_folder"|".\\\\projects\\\\"|Relative path, where the Blender files should be located.|
-|"render_folder"|".\\\\render\\\\"|Relative path, where the rendered images should be placed.|
-|"logs_folder"|".\\\\logs\\\\"|Relative path, where the Blender Generated logs should be placed.|
-|"temp_projects"|".\\\\temp\\\\projects\\\\"|Relative path for Nodes temporary location for Blender files.|
-|"temp_media"|".\\\\temp\\\\media\\\\"|Relative path for rendered images before sent to Server.|
-|"temp_logs"|".\\\\temp\\\\logs\\\\"|Relative path for Blender Generated Logs.|
+|"project_folder"|".\\\\projects\\\\"|Absolute or Relative path, where the Blender files should be located.|
+|"render_folder"|".\\\\render\\\\"|Absolute or Relative path, where the rendered images should be placed.|
+|"logs_folder"|".\\\\logs\\\\"|Absolute or Relative path, where the Blender Generated logs should be placed.|
+|"temp_projects"|".\\\\temp\\\\projects\\\\"|Absolute or Relative path for Nodes temporary location for Blender files.|
+|"temp_media"|".\\\\temp\\\\media\\\\"|Absolute or Relative path for rendered images before sent to Server.|
+|"temp_logs"|".\\\\temp\\\\logs\\\\"|Absolute or Relative path for Blender Generated Logs.|
 |"render_engines"|"CYCLES", "BLENDER_EEVEE"|The Renderer tp be used. Others can be added. The name of the Renderer can be valuated with the -E or --engine parameter. See [Blender Command Line Arguments](https://docs.blender.org/manual/en/latest/advanced/command_line/arguments.html) for more information.   |
 |"file_format"|"TGA", "RAWTGA", "JPEG",<br> "IRIS", "IRIZ", "PNG", "BMP"|These file formats that are supported on every system. Some snimations formats (i.e. "AVIRAW" or "AVIJPEG") can be added here also, but it is recommended to render image sequences.|
 |"extra_formats"|"HDR", "TIFF", "OPEN_EXR",<br>"OPEN_EXR_MULTILAYER",<br>"MPEG", "CINEON", "DPX",<br>"DDS", "JP2", "WEBP"|Extra file formats that are not supported on every system. Make sure that your systems supports these before rendering.|

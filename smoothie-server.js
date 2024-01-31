@@ -32,6 +32,19 @@ let _local_data     = {}; // Filled with data from config.json and converted to 
 let _smoothie_nodes = []; // List of nodes in the network
 let _project_files  = []; // List of files in the project folder
 let _project_info   = {}; // Information about the current project
+let _render_params  = {   // Render parameters for the current project
+    fileFormat: "PNG",
+    frameStart: 1,
+    frameEnd: 250,
+
+};
+
+/*
+'PRMAN_RENDER'  - Pixar Renderman
+'REDSHIFT'      - Maxon Redshift
+'RPR'           - AMD Radeon Pro Render
+'LUXCORE'       - LuxCoreRender
+*/
 
 // ------------------------------------ //
 //     Load Config and Start Server     //
@@ -87,13 +100,13 @@ function startServer(cfg) {
         let _b = checkIfRequestedFileExistsInProjectFolder( _file );
 
         if( _b ) {
-            // console.log( "FILE : " + _file );
             _project_info = await blender.getBlenderFileInformation( res, _file, _config, _local_data );
-            // console.log( "PROJECT INFO : " + _project_info );
         } else {
             res.send( `{ "ERROR" : "[0001] Saved Project File not found." }` );
         }
     });
+
+
 
     app.get("/api/render", (req, res) => {
         if( req.query.file == "" ) {
@@ -105,9 +118,7 @@ function startServer(cfg) {
 
     app.get('/api/start_render', async (req, res) => {
         let _file = req.query.file;
-        // console.log( "/api/start_render : " + _file );
         let _render_info = await startRender( _file );
-        // console.log( _render_info );
         res.send({ "render_start" : _render_info });
     });
 
@@ -137,15 +148,11 @@ function startServer(cfg) {
             "/api/receive_rendered_image",
             "rendered_image"
         );
-        // console.log("Received Rendered Image File : " + req.file.originalname );
         res.send("OK");
     });
 
     app.listen(cfg.server_port, () => {
         _local_data.server_ip = ip.address();
-        // console.log("Smoothie Server Online.");
-        // console.log("System IP Address: " + _local_data.server_ip);
-        // console.log(`Smoothie listening on port ${cfg.server_port}`);
         api_scan_nodes();
     });
 
@@ -162,12 +169,7 @@ function checkIfRequestedFileExistsInProjectFolder( _file ) {
 
 async function startRender( _filename ) {
 
-    // console.log( "Starting Render Procedure ..." );
-    // console.log( "Sending File to Nodes: " + _filename );
-
     let _absolute_file_and_path = path.join( _local_data.project_folder, _filename );
-
-    // console.log( _absolute_file_and_path );
 
     await environment.transferFile( _absolute_file_and_path, _smoothie_nodes[0], _config.node_port, "/api/transfer_blend_file", "blend_file" )
     .then( (response) => {

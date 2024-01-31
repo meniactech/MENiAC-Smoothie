@@ -146,7 +146,7 @@ Folder hierarchy:
 
 ## Other Information Sources
 
-* [Blender Command Line Arguments Documentation](https://docs.blender.org/manual/en/latest/advanced/command_line/arguments.html)
+* <a href="https://docs.blender.org/manual/en/latest/advanced/command_line/arguments.html" target="_blank">Blender Command Line Arguments Documentation</a>
 
 
 ---
